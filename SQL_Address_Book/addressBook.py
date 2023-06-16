@@ -18,6 +18,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton, QLineEdit, QStackedWidget, QMainWindow
 from PyQt5.QtCore import Qt
+from contactInfo_SQL import *
 
 # ------------------------------------------------------------
 
@@ -83,7 +84,7 @@ class CreateContactScreen(QWidget):
 
         # Create QPushButtons to run functions
         self.save_button = QPushButton('Save')
-        self.save_button.clicked.connect(self.addToList) # Connects to the 'addToList' method to store data
+        self.save_button.clicked.connect(self.add_contact) # Connects to the 'addToList' method to store data
 
         self.clear_button = QPushButton('Clear All')
         self.clear_button.clicked.connect(self.clear_fields)
@@ -120,21 +121,6 @@ class CreateContactScreen(QWidget):
         self.contactsList = []
         
         
-    # Collect all of the data   
-    def addToList(self):
-        first_name = self.first_name_input.text()
-        last_name = self.last_name_input.text()
-        email = self.email_input.text()
-        phone_number = self.phone_number_input.text()
-        dob = self.dob_input.text()
-        
-        contact_data = (first_name,last_name,email,phone_number,dob)
-        self.contactsList.append(contact_data)
-        
-        self.clear_fields()
-        
-        print(self.contactsList)
-        
     # Clear the text fields
     def clear_fields(self):
         self.first_name_input.clear()
@@ -143,6 +129,25 @@ class CreateContactScreen(QWidget):
         self.email_input.clear()
         self.dob_input.clear()
         
+    def add_contact(self):
+        first_name = self.first_name_input.text()
+        last_name = self.last_name_input.text()
+        email = self.email_input.text()
+        phone_number = self.phone_number_input.text()
+        dob = self.dob_input.text()
+        
+        a = [first_name,last_name,email,phone_number,dob]
+        print(a)
+        
+        db = contactInfo_SQL(database_name='contact_info_db',
+                               host='localhost',
+                               port='3306',
+                               username='root',
+                               password='rocketJA17$',
+                               )
+        db.store_contact('contact_info',first_name,last_name,phone_number,email,dob)
+        self.clear_fields()
+        
 # ------------------------------------------------------------
 
 class FindContactScreen(QWidget):
@@ -150,6 +155,7 @@ class FindContactScreen(QWidget):
         super().__init__()
         self.parent = parent
         self.setUI()
+        
         
     def setUI(self):
         # Create QLineEdit widgets for each field
@@ -174,7 +180,7 @@ class FindContactScreen(QWidget):
         # QPushButtons to run functions
         self.search_button = QPushButton('Search')
         # ---------------------------- ADD FUNCTIONALITY ------------------------------------------
-        #self.search_button.clicked.connect(self.searchContact) # Connects to the 'searchContact()' method to find data
+        self.search_button.clicked.connect(self.find_contacts) # Connects to the 'searchContact()' method to find data
 
         self.clear_button = QPushButton('Clear All')
         self.clear_button.clicked.connect(self.clear_fields)
@@ -211,8 +217,101 @@ class FindContactScreen(QWidget):
         self.first_name_input.clear()
         self.last_name_input.clear()
         self.email_input.clear()
+        
+    def find_contacts(self):
+        first_name = self.first_name_input.text()
+        last_name = self.last_name_input.text()
+        email = self.email_input.text()
+        
+        self.parent.showDisplayContactInfoScreen(self.first_name_input.text(), 
+                                                 self.last_name_input.text(), 
+                                                 self.email_input.text())
+        self.clear_fields()
+        
+#------------------------------------------------------------
 
-# ------------------------------------------------------------
+class displayContactInfoScreen(QWidget):
+    def __init__(self,parent,firstName,lastName,email):
+        super().__init__()
+        self.parent = parent
+        self.first_name = firstName
+        self.last_name = lastName
+        self.email = email
+        
+        self.setUI()
+        
+    def setUI(self):    
+        self.contact_found_label = QLabel('')
+        self.contact_found_label.setAlignment(Qt.AlignCenter)
+        self.first_name_label = QLabel('')
+        self.first_name_label.setAlignment(Qt.AlignCenter)
+        self.last_name_label = QLabel('')
+        self.last_name_label.setAlignment(Qt.AlignCenter)
+        self.phone_number_label = QLabel('')
+        self.phone_number_label.setAlignment(Qt.AlignCenter)
+        self.email_label = QLabel('')
+        self.email_label.setAlignment(Qt.AlignCenter)
+        self.dob_label = QLabel('')
+        self.dob_label.setAlignment(Qt.AlignCenter)
+        
+        # --- Back Button ---
+        
+        self.back_button = QPushButton('Back')
+        self.back_button.clicked.connect(self.parent.showFindContactScreen)
+        
+        # --- Layout ---
+        display_contact_layout = QVBoxLayout()
+        
+        sql = contactInfo_SQL(database_name='contact_info_db',
+                               host='localhost',
+                               port='3306',
+                               username='root',
+                               password='rocketJA17$',
+                               )
+        searchResult = sql.search_contacts('contact_info',self.first_name,self.last_name,self.email)
+        
+        if not searchResult:
+            self.contact_found_label.setText('Contact Not Found...Please Try Searching Again')
+            display_contact_layout.addWidget(self.contact_found_label)
+            
+            display_contact_layout.addWidget(self.back_button)
+            
+            self.setLayout(display_contact_layout)
+            
+        elif searchResult:
+            self.contact_found_label.setText('Contact Found:')
+            display_contact_layout.addWidget(self.contact_found_label)
+            
+            firstName = searchResult[0][0]
+            lastName = searchResult[0][1]
+            phoneNumber = searchResult[0][2]
+            email = searchResult[0][3]
+            dob = searchResult[0][4]
+            
+            self.first_name_label.setText(firstName)
+            display_contact_layout.addWidget(self.first_name_label)
+            
+            self.last_name_label.setText(lastName)
+            display_contact_layout.addWidget(self.last_name_label)
+            
+            self.phone_number_label.setText(phoneNumber)
+            display_contact_layout.addWidget(self.phone_number_label)
+            
+            self.email_label.setText(email)
+            display_contact_layout.addWidget(self.email_label)
+            
+            self.dob_label.setText(dob)
+            display_contact_layout.addWidget(self.dob_label)
+            
+            display_contact_layout.addWidget(self.back_button)
+            
+            
+            self.setLayout(display_contact_layout)
+            
+        
+        
+
+#------------------------------------------------------------
 
 class AboutScreen(QWidget):
     def __init__(self,parent):
@@ -258,7 +357,7 @@ class AddressBook(QMainWindow):
         
         self.setCentralWidget(self.stacked_widget)  # Set the stacked widget as the central widget
         
-        self.showHomeScreen()  # Call the showHomeScreen() function to display the home screen
+        self.showHomeScreen()  # Call the showHomeScreen() function to display the home screen on startup
     
     
     def showHomeScreen(self):
@@ -269,9 +368,16 @@ class AddressBook(QMainWindow):
     
     def showFindContactScreen(self):
         self.stacked_widget.setCurrentWidget(self.find_contact_screen)
-        
+    
+    def showDisplayContactInfoScreen(self, first_name, last_name, email):
+        display_contact_info_screen = displayContactInfoScreen(self, first_name, last_name, email)
+        self.stacked_widget.addWidget(display_contact_info_screen)
+        self.stacked_widget.setCurrentWidget(display_contact_info_screen)
+    
     def showAboutScreen(self):
         self.stacked_widget.setCurrentWidget(self.about_screen)
+        
+    
         
 # -----        
         
