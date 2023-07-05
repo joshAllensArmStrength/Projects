@@ -24,6 +24,8 @@ class weatherGUI(QMainWindow):
         self.stacked_widget.addWidget(self.findWeather_screen)
         self.stacked_widget.addWidget(self.displayWeather_screen)
         
+        self.setCentralWidget(self.stacked_widget)  # Set the stacked widget as the central widget
+
         self.showHomeScreen()
         
         
@@ -32,13 +34,13 @@ class weatherGUI(QMainWindow):
         self.stacked_widget.setCurrentWidget(self.home_screen)
         
     def showSearchWeatherScreen(self):
-        self.stacked_widget.setCurrentWindow(self.findWeather_screen)
+        self.stacked_widget.setCurrentWidget(self.findWeather_screen)
         
     def showDisplayWeatherScreen(self):
-        self.stacked_widget.setCurrentWindow(self.displayWeather_screen)
+        self.stacked_widget.setCurrentWidget(self.displayWeather_screen)
         
     def showAboutScreen(self):
-        self.stacked_widget.setCurrentWindow(self.about_screen)
+        self.stacked_widget.setCurrentWidget(self.about_screen)
         
 #----------------------------------------------------
 
@@ -50,8 +52,8 @@ class HomeScreen(QWidget):
         
         
     def setUI(self):
-        
         self.display_label = QLabel('Weather App')
+        self.display_label.setAlignment(Qt.AlignCenter)
         
         self.searchWeather_button = QPushButton('Find Weather')
         self.searchWeather_button.clicked.connect(self.parent.showSearchWeatherScreen)
@@ -66,6 +68,8 @@ class HomeScreen(QWidget):
         homeScreen_layout = QVBoxLayout()
         homeScreen_layout.addWidget(self.display_label)
         homeScreen_layout.addLayout(button_layout)
+        
+        self.setLayout(homeScreen_layout)
         
 #-----------------------------------------------------
 

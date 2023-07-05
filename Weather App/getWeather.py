@@ -61,7 +61,7 @@ class getWeather:
             self.temp_low = weather_data['main']['temp_min']
             self.wind_speed = weather_data['wind']['speed']
             self.humidity = weather_data['main']['humidity']
-            self.description = weather_data['weather']['description']
+            self.description = weather_data['weather'][0]['description']
             self.sunrise = weather_data['sys']['sunrise']
             self.sunset = weather_data['sys']['sunset']
         else:
@@ -71,5 +71,5 @@ class getWeather:
 
 if __name__ == '__main__':
     
-    #x = getWeather('d4b7ac38f8d6e6555ad50e43cb755352','','14072')
+    x = getWeather('d4b7ac38f8d6e6555ad50e43cb755352','Grand Island','')
         
