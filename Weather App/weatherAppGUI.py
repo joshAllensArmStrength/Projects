@@ -24,6 +24,7 @@ class weatherGUI(QMainWindow):
         self.stacked_widget.addWidget(self.home_screen)
         self.stacked_widget.addWidget(self.findWeather_screen)
         self.stacked_widget.addWidget(self.displayWeather_screen)
+        self.stacked_widget.addWidget(self.about_screen)
         
         self.setCentralWidget(self.stacked_widget)  # Set the stacked widget as the central widget
 
@@ -171,8 +172,22 @@ class AboutScreen(QWidget):
     def __init__(self,parent):
         super().__init__()
         self.parent = parent
-        #self.setUI()
+        self.setUI()
         
+    def setUI(self):
+        self.name_label = QLabel('Nicholas Colan')
+        self.name_label.setAlignment(Qt.AlignCenter)
+        self.year_label = QLabel('2023')
+        self.year_label.setAlignment(Qt.AlignCenter)
+        self.home_button = QPushButton('Home')
+        self.home_button.clicked.connect(self.parent.showHomeScreen)
+        about_layout = QVBoxLayout() 
+        
+        about_layout.addWidget(self.name_label)
+        about_layout.addWidget(self.year_label)
+        about_layout.addWidget(self.home_button,alignment=Qt.AlignCenter)
+        
+        self.setLayout(about_layout)
 
        
     
