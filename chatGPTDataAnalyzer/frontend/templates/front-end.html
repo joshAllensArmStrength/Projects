@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSV File Upload</title>
+</head>
+<body>
+    <h1>Upload a CSV File</h1>
+    <form>
+        <input type="file" id="fileInput" accept=".csv">
+        <button type="button" id="uploadButton">Upload</button>
+    </form>
+
+    <div id="resultSection" style="display: none;">
+        <h2>Analysis Result:</h2>
+        <div id="result"></div>
+    </div>
+    
+    <script src = "{{ url_for('static', filename = 'front-end.js') }}"></script>
+</body>
+</html>
+
+
+
